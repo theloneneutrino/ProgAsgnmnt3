@@ -6,7 +6,8 @@ int main(int argc, char *argv[]) {
 	switch(argc)
 	{
 	case 1:
-		NOT_IMP
+		status = readFromUserInput();
+		break;
 	case 3:
 		status = dataValidationWrapper(argv[1], argv[2]);
 		break;

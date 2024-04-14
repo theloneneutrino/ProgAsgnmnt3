@@ -17,7 +17,7 @@ int stringToInt(char *sting) {
 
 	for(size_t it = 0; it < length; it++) {
 		if ( (sting[it] >= '0') && (sting[it] <= '9') ) {
-			result = 10 * result + sting[it];
+			result = 10 * result + (sting[it] - '0');
 		}
 		else {
 			return -1;
@@ -41,8 +41,18 @@ int max(int x, int y) {
 		return y;
 }
 
+void sort(int *x, int *y) {
+	int minVal = min(*x, *y);
+	int maxVal = max(*x, *y);
+	
+	*x = minVal;
+	*y = maxVal;
+}
+
 int gcd(int x, int y) {
-	unsigned int modVal = max(x, y) % min(x, y);
+	sort(&x, &y);	
+	
+	unsigned int modVal = y % x;
 	
 	while(modVal != 0) {
 		y      = x;
@@ -63,4 +73,15 @@ int dataValidationWrapper(char *arg1, char *arg2) {
 	
 	printf("%d\n", gcd(x, y));
 	return 0;
+}
+
+int readFromUserInput () {
+	char arg1[9], arg2[9];
+	printf ("Enter your first number: ");
+	scanf ("%9s", arg1);
+	
+	printf ("Enter your second number: ");
+	scanf ("%9s", arg2);
+	
+	return dataValidationWrapper(arg1, arg2);
 }
