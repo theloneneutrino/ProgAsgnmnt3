@@ -1,5 +1,4 @@
 # ignore these guys
-*.out
-*.o
+release/
+debug/
 
-*.txt

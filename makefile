@@ -1,39 +1,73 @@
-# Makefile for compiling C++ source files
+#
+# Compiler flags
+#
+CC     = gcc
+CFLAGS = -Wall -Werror -Wextra
 
-# Compiler and flags
-CXX = gcc
-CXXFLAGS = -std=c2x -Wall -Wextra -g
-
-# Directories
+#
+# Project files
+#
 SRCDIR = src
 INCDIR = headers
 BINDIR = .
 
 # Source files and object files
-SOURCES = $(wildcard $(SRCDIR)/*.c)
-OBJECTS = $(SOURCES:$(SRCDIR)/%.c=$(BINDIR)/%.o)
+SRCS = $(wildcard $(SRCDIR)/*.c)
+HDRS := $(wildcard $(INCDIR)/*.h)
+OBJS = $(SRCS:$(SRCDIR)/%.c=%.o)
 
-# Output executable
-TARGET = gcd.out
+EXE  = gcd.out
 
-# Rules for building the executable
-$(TARGET): $(OBJECTS)
-	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJECTS)
+#
+# Debug build settings
+#
+DBGDIR = debug
+DBGEXE = $(DBGDIR)/$(EXE)
+DBGOBJS = $(addprefix $(DBGDIR)/, $(OBJS))
+DBGCFLAGS = -g -O0 -DDEBUG
 
-# Compile source files into object files
-$(BINDIR)/%.o: $(SRCDIR)/%.c
-	$(CXX) $(CXXFLAGS) -I$(INCDIR) -c $< -o $@
+#
+# Release build settings
+#
+RELDIR = release
+RELEXE = $(RELDIR)/$(EXE)
+RELOBJS = $(addprefix $(RELDIR)/, $(OBJS))
+RELCFLAGS = -O3 -DNDEBUG
 
-# Clean rule
+.PHONY: all clean debug prep release remake
+
+# Default build
+all: prep release
+
+#
+# Debug rules
+#
+debug: $(DBGEXE)
+
+$(DBGEXE): $(DBGOBJS)
+	$(CC) $(CFLAGS) $(DBGCFLAGS) -o $(DBGEXE) $^
+
+$(DBGDIR)/%.o: %.c
+	$(CC) -c $(CFLAGS) $(DBGCFLAGS) -o $@ $<
+
+#
+# Release rules
+#
+release: $(RELEXE)
+
+$(RELEXE): $(RELOBJS)
+	$(CC) $(CFLAGS) $(RELCFLAGS) -o $(RELEXE) $^
+
+$(RELDIR)/%.o: $(SRCS)
+	$(CC) -c $(CFLAGS) $(RELCFLAGS) -o $@ $<
+
+#
+# Other rules
+#
+prep:
+	@mkdir -p $(DBGDIR) $(RELDIR)
+
+remake: clean all
+
 clean:
-	rm -f $(OBJECTS) $(TARGET)
-
-# Phony target to prevent conflicts with filenames
-.PHONY: all clean
-
-# Default target
-all: $(TARGET)
-
-# Usage: make         (to compile the program)
-#        make clean   (to clean up object files and the executable)
-
+	rm -f $(RELEXE) $(RELOBJS) $(DBGEXE) $(DBGOBJS)
